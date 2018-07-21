@@ -1,7 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+
 <litepal>
     <dbname value="cool_weather"/>
-    <vesion value="1"/>
-
+    <version value="1"/>
     <list>
         <mapping class="com.example.coolweather.db.Province"/>
         <mapping class="com.example.coolweather.db.City"/>

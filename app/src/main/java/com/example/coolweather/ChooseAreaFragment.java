@@ -1,109 +1,258 @@
 package com.example.coolweather;
 
-import android.content.Context;
+import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.GridLayoutManager;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
+import android.widget.TextView;
+import android.widget.Toast;
 
-import com.example.coolweather.dummy.DummyContent;
-import com.example.coolweather.dummy.DummyContent.DummyItem;
+import com.example.coolweather.db.City;
+import com.example.coolweather.db.County;
+import com.example.coolweather.db.Province;
+import com.example.coolweather.util.HttpUtil;
+import com.example.coolweather.util.Utility;
 
+import org.litepal.crud.DataSupport;
+
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
+import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
+
+
 public class ChooseAreaFragment extends Fragment {
 
-    // TODO: Customize parameter argument names
-    private static final String ARG_COLUMN_COUNT = "column-count";
-    // TODO: Customize parameters
-    private int mColumnCount = 1;
-    private OnListFragmentInteractionListener mListener;
+    public static final int LEVEL_PROVINCE=0;
+    public static final int LEVEL_CITY=1;
+    public static final int LEVEL_COUNTY=2;
+    private ProgressDialog progressDialog;
+    private TextView titleText;
+    private Button backButton;
+    private ListView listView;
+    private ArrayAdapter<String> adapter;
+    private List<String> dataList = new ArrayList<>();
+
 
     /**
-     * Mandatory empty constructor for the fragment manager to instantiate the
-     * fragment (e.g. upon screen orientation changes).
+     * 省列表
      */
-    public ChooseAreaFragment() {
-    }
+    private List<Province> provinceList;
 
-    // TODO: Customize parameter initialization
-    @SuppressWarnings("unused")
-    public static ChooseAreaFragment newInstance(int columnCount) {
-        ChooseAreaFragment fragment = new ChooseAreaFragment();
-        Bundle args = new Bundle();
-        args.putInt(ARG_COLUMN_COUNT, columnCount);
-        fragment.setArguments(args);
-        return fragment;
-    }
+    /**
+     * 市列表
+     */
+    private List<City> cityList;
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    /**
+     * 县列表
+     */
+    private List<County> countyList;
 
-        if (getArguments() != null) {
-            mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
-        }
-    }
+    /**
+     * 选择的省份
+     */
+    private Province selectedProvince;
+
+    /**
+     * 选择的城市
+     */
+    private City selectedCity;
+
+    /**
+     * 当前选中的级别
+     */
+    private int currentLevel;
+
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_item_list, container, false);
-
-        // Set the adapter
-        if (view instanceof RecyclerView) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = (RecyclerView) view;
-            if (mColumnCount <= 1) {
-                recyclerView.setLayoutManager(new LinearLayoutManager(context));
-            } else {
-                recyclerView.setLayoutManager(new GridLayoutManager(context, mColumnCount));
-            }
-            recyclerView.setAdapter(new MyItemRecyclerViewAdapter(DummyContent.ITEMS, mListener));
-        }
+        View view = inflater.inflate(R.layout.choose_area, container, false);
+        titleText = (TextView) view.findViewById(R.id.title_text);
+        backButton = (Button) view.findViewById(R.id.back_button);
+        listView = (ListView) view.findViewById(R.id.list_view);
+        adapter = new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,dataList);
+        listView.setAdapter(adapter);
         return view;
     }
 
 
     @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnListFragmentInteractionListener) {
-            mListener = (OnListFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnListFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
+    public void onActivityCreated(Bundle saveInstanceState) {
+        super.onActivityCreated(saveInstanceState);
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                if(currentLevel == LEVEL_PROVINCE){
+                    selectedProvince = provinceList.get(position);
+                    queryCities();
+                }else if(currentLevel == LEVEL_CITY){
+                    selectedCity = cityList.get(position);
+                    queryCounties();
+                }
+            }
+        });
+        backButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v){
+                if(currentLevel == LEVEL_COUNTY){
+                    queryCities();
+                }else if(currentLevel == LEVEL_CITY){
+                    queryProvinces();
+                }
+            }
+        });
+        queryProvinces();
     }
 
     /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
+     * 查询全国所有的省份，优先从数据库查询，如果没有查询到再从服务器上查询
      */
-    public interface OnListFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+    private void queryProvinces(){
+        titleText.setText("中国");
+        backButton.setVisibility(View.GONE);//VISIBLE:0  意思是可见的I;NVISIBILITY:4 意思是不可见的，但还占着原来的空间GONE:8  意思是不可见的，不占用原来的布局空间
+        provinceList = DataSupport.findAll(Province.class);
+        if(provinceList.size()>0){
+            dataList.clear();
+            for(Province province:provinceList){//遍历省份表
+                dataList.add(province.getProvinceName());
+            }
+            adapter.notifyDataSetChanged();
+            listView.setSelection(0);
+            currentLevel = LEVEL_PROVINCE;
+        }else{
+            String address = "http://guolin.tech/api/china";
+            queryFromServer(address,"province");
+        }
     }
+
+    /**
+     *  查询全国所选的省份所有的市，优先从数据库查询，如果没有查询到再从服务器上查询
+     */
+
+    private void queryCities() {
+        titleText.setText(selectedProvince.getProvinceName());
+        backButton.setVisibility(View.VISIBLE);
+        cityList = DataSupport.where("provinceId = ?", String.valueOf(selectedProvince.getId())).find(City.class);
+        if (cityList.size() > 0) {
+            dataList.clear();
+            for (City city : cityList) {
+                dataList.add(city.getCityName());
+            }
+            adapter.notifyDataSetChanged();//notifyDataSetChanged方法通过一个外部的方法控制如果适配器的内容改变时需要强制调用getView来刷新每个Item的内容
+            listView.setSelection(0);
+            currentLevel = LEVEL_CITY;
+        } else {
+            int provinceCode = selectedProvince.getProvinceCode();
+            String address = "http://guolin.tech/api/china/" + provinceCode;
+            queryFromServer(address, "city");
+        }
+    }
+
+    /**
+     *  查询全国所选市的所有县，优先从数据库查询，如果没有查询到再从服务器上查询
+     */
+    private void queryCounties(){
+        titleText.setText(selectedCity.getCityName());
+        backButton.setVisibility(View.VISIBLE);
+        countyList = DataSupport.where("cityid = ?",String.valueOf(selectedCity.getId())).find(County.class);
+        if(countyList.size()>0){
+            dataList.clear();
+            for(County county : countyList){
+                dataList.add(county.getCountyName());
+            }
+            adapter.notifyDataSetChanged();
+            listView.setSelection(0);
+            currentLevel = LEVEL_COUNTY;
+        }else{
+            int provinceCode = selectedProvince.getProvinceCode();
+            int cityCode = selectedCity.getCityCode();
+            String address = "http://guolin.tech/api/china/"+provinceCode+"/"+cityCode;
+            queryFromServer(address,"county");
+        }
+    }
+    /**
+     * 根据传入的地址和数据类型从服务器上查询省县市数据
+     */
+
+    private void queryFromServer(String address,final String type){
+        showProgressDialog();
+        HttpUtil.sendOkHttpRequest(address, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                //通过runOnUiThread()方法回到主线程
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        closeProgressDialog();
+                        Toast.makeText(getContext(),"加载失败",Toast.LENGTH_SHORT).show();
+                    }
+                });
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                String responseText = response.body().string();///获取响应体 ,在多次引用response.body().string()的时候，程序会崩溃掉
+                boolean result = false;
+                if("province".equals(type)){//判断type是否与province相等
+                    result = Utility.handleProvinceResponse(responseText);//不是很懂
+                }else if("city".equals(type)){
+                    result = Utility.handleCityResponse(responseText,selectedProvince.getId());
+                }else if("county".equals(type)){
+                    result = Utility.handleCountyResponse(responseText,selectedCity.getId());
+                }
+                if(result){
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            closeProgressDialog();
+                            if("province".equals(type)){
+                                queryProvinces();
+                            }else if("city".equals(type)){
+                                queryCities();
+                            }else if("county".equals(type)){
+                                queryCounties();
+                            }
+                        }
+                    });
+                }
+            }
+
+
+        });
+    }
+    /**
+     * 显示对话框
+     */
+    private void showProgressDialog(){//进度对话框
+        if(progressDialog == null){
+            progressDialog =new ProgressDialog(getActivity());
+            progressDialog.setMessage("Loading");
+            progressDialog.setCanceledOnTouchOutside(false);
+        }
+        progressDialog.show();
+    }
+
+    /**
+     * 关闭对话框
+     */
+    private void closeProgressDialog(){
+        if(progressDialog != null){
+            progressDialog.dismiss();
+        }
+    }
+
 }
+

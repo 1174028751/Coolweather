@@ -10,13 +10,13 @@ public class City extends DataSupport {
     private int id;
     private String cityName;//城市名称
     private int cityCode;//城市编号
-    private int proviceId;//所属省份
+    private int provinceId;//所属省份
 
     public int getId(){
         return id;
     }
 
-    public void setId(){
+    public void setId(int id){
         this.id = id;
     }
 
@@ -24,7 +24,7 @@ public class City extends DataSupport {
         return cityName;
     }
 
-    public void setCityName(){
+    public void setCityName(String cityName){
         this.cityName = cityName;
     }
 
@@ -32,16 +32,16 @@ public class City extends DataSupport {
         return cityCode;
     }
 
-    public void setCityCode(){
+    public void setCityCode(int cityCode){
         this.cityCode = cityCode;
     }
 
-    public int getProviceId(){
-        return proviceId;
+    public int getProvinceId(){
+        return provinceId;
     }
 
-    public void setProviceId(){
-        this.proviceId = proviceId;
+    public void setProvinceId(int provinceId){
+        this.provinceId = provinceId;
     }
 }
 

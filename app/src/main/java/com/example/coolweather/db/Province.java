@@ -15,7 +15,7 @@ import org.litepal.crud.DataSupport;
  return id;
  }
 
- public void setId(){
+ public void setId(int id){
   this.id = id;
  }
 
@@ -23,7 +23,7 @@ import org.litepal.crud.DataSupport;
   return provinceName;
  }
 
- public void setProvinceName(){
+ public void setProvinceName(String provinceName){
   this.provinceName = provinceName;
  }
 
@@ -31,7 +31,7 @@ import org.litepal.crud.DataSupport;
   return provinceCode;
  }
 
- public void setProvinceCode(){
+ public void setProvinceCode(int provinceCode){
   this.provinceCode = provinceCode;
  }
 

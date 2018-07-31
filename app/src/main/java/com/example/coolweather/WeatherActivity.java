@@ -1,14 +1,19 @@
 package com.example.coolweather;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Build;
 import android.preference.PreferenceManager;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
@@ -19,6 +24,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.example.coolweather.gson.Forecast;
 import com.example.coolweather.gson.Weather;
+import com.example.coolweather.service.AutoUpdateService;
 import com.example.coolweather.util.HttpUtil;
 import com.example.coolweather.util.Utility;
 
@@ -59,6 +65,12 @@ public class WeatherActivity extends AppCompatActivity {
     public SwipeRefreshLayout swipeRefresh;
 
     private String mWeatherId;
+
+    //设置滑动菜单
+    public DrawerLayout drawerLayout;
+
+    private Button navButton;
+
 
 
 
@@ -112,6 +124,8 @@ public class WeatherActivity extends AppCompatActivity {
          * onSaveInstanceState时，再从SharedPreferences中将值取出。其中的原理是通过Android系统生成一个xml文件保存
          *  到：/data/data/包名/shared_prefs目录下，类似键值对的方式来存储数据。
          */
+        drawerLayout = (DrawerLayout)findViewById(R.id.drawer_layout);
+        navButton = (Button)findViewById(R.id.nav_button);
 
 
         //每个应用有一个默认的偏好文件preferences.xml，使用getDefaultSharedPreferences获取
@@ -127,7 +141,6 @@ public class WeatherActivity extends AppCompatActivity {
            mWeatherId = weather.basic.weatherId;
             showWeatherInfo(weather);
        } else {
-           Toast.makeText(this,"无缓存",Toast.LENGTH_LONG).show();
             //无缓存时去服务器查询天气,接收ChooseAreaFragment 传过来的weather_id,进行数据查询，
            mWeatherId = getIntent().getStringExtra("weather_id");
             String weatherId = getIntent().getStringExtra("weather_id");
@@ -136,12 +149,22 @@ public class WeatherActivity extends AppCompatActivity {
 
        }
 
+       //设置下滑刷洗监听
+
        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
            @Override
            public void onRefresh() {
                requestWeather(mWeatherId);
            }
        });
+
+       //设置切换城市按钮监听
+        navButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                drawerLayout.openDrawer(GravityCompat.START);//打开滑动菜单
+            }
+        });
 
        String bingPic = prefs.getString("bing_pic",null);
        if(bingPic != null){
@@ -256,6 +279,8 @@ public class WeatherActivity extends AppCompatActivity {
         carWashText.setText(carWash);
         sportText.setText(sport);
         weatherLayout.setVisibility(View.VISIBLE);
+        Intent intent = new Intent(this, AutoUpdateService.class);
+        startService(intent);
     }
 
     /**

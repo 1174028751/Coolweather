@@ -106,10 +106,24 @@ public class ChooseAreaFragment extends Fragment {
                     与WeatherActivity进行数据交互，将 weatherid 传送过去
                      */
                     String weatherId =countyList.get(position).getWeatherId();
-                    Intent intent = new Intent(getActivity(),WeatherActivity.class);
-                    intent.putExtra("weather_id",weatherId);
-                    startActivity(intent);
-                    getActivity().finish();
+                    /**
+                     * instanceof 判断一个对象是否属于某个对象的实例
+                     */
+
+                    if(getActivity() instanceof  MainActivity){
+                        Intent intent = new Intent(getActivity(),WeatherActivity.class);
+                        intent.putExtra("weather_id",weatherId);
+                        startActivity(intent);
+                        getActivity().finish();
+
+                    }else if(getActivity() instanceof WeatherActivity){
+                        WeatherActivity activity = (WeatherActivity)getActivity();
+                        activity.drawerLayout.closeDrawers();//关闭滑动菜单
+                        activity.swipeRefresh.setRefreshing(true);
+                        activity.requestWeather(weatherId);
+
+                    }
+
                 }
             }
         });

@@ -35,6 +35,13 @@
     把原图按照指定的大小在View中显示，拉伸显示图片，不保持原比例，填满ImageView.-->
 
 
+
+    <android.support.v4.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
 <!--除了OnRefreshListener接口外，SwipRefreshLayout中还有一些其他重要的方法，具体如下：
          1、setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener listener):设置手势滑动监听器。
          2、setProgressBackgroundColor(int colorRes):设置进度圈的背景色。
@@ -73,5 +80,13 @@
         </LinearLayout>
     </ScrollView>
     </android.support.v4.widget.SwipeRefreshLayout>
+
+        <fragment
+            android:id="@+id/choose_area_fragment"
+            android:name="com.example.coolweather.ChooseAreaFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="start"/>
+    </android.support.v4.widget.DrawerLayout>
 </FrameLayout>
 

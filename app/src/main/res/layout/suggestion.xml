@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="15dp"
+    android:background="#8000">
+<!--layout_margin指view距离父view的距离。这个说法不够严谨，正确的说法是，距离view的相对view的距离才更准确。
+	在Linearlayout下。能够觉得是距离父view的距离。但在RelativeLayout下则不然，假设view A已经写定在view B的右側，
+	则view A的layout_marginLeft就是距离view B的距离，与父View无关。另外。这个距离到底是两个view中心的距离还是相
+	邻两边的距离？能够这样理解，每一个view都是一个矩形区域。假设view A已经设定在view B的右側。则layout_marginLeft
+	是view B的右边 和view A的左边之间的距离，而非两个view中心之间的距离。-->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:text="生活建议"
+        android:textColor="#fff"
+        android:textSize="20sp"/>
+
+    <TextView
+        android:id="@+id/comort_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textColor="#fff"/>
+    <TextView
+        android:id="@+id/car_wash_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textColor="#fff"/>
+    <TextView
+        android:id="@+id/sport_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="15dp"
+        android:textColor="#fff"/>
+
+</LinearLayout>

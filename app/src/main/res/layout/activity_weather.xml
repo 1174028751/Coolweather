@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+    <FrameLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@color/colorPrimary">
+
+
+    <ImageView
+        android:id="@+id/bing_pic_img"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"/>
+    <!--android:scaleType="center"
+    保持原图的大小，显示在ImageView的中心。当原图的size大于ImageView的size，超过部分裁剪处理。
+    android:scaleType="centerCrop"
+    以填满整个ImageView为目的，将原图的中心对准ImageView的中心，等比例放大原图，直到填满ImageView为止（指的是ImageView的宽和高都要填满）
+    ，原图超过ImageView的部分作裁剪处理。
+    android:scaleType="centerInside"
+    以原图完全显示为目的，将图片的内容完整居中显示，通过按比例缩小原图的size宽(高)等于或小于ImageView的宽(高)。
+    如果原图的size本身就小于ImageView的size，则原图的size不作任何处理，居中显示在ImageView。
+     android:scaleType="matrix"
+     不改变原图的大小，从ImageView的左上角开始绘制原图，原图超过ImageView的部分作裁剪处理。
+
+        android:scaleType="fitCenter"
+       把原图按比例扩大或缩小到ImageView的ImageView的高度，居中显示
+
+    android:scaleType="fitEnd"
+    把原图按比例扩大(缩小)到ImageView的高度，显示在ImageView的下部分位置
+
+    android:scaleType="fitStart"
+    把原图按比例扩大(缩小)到ImageView的高度，显示在ImageView的上部分位置
+
+    android:scaleType="fitXY"
+    把原图按照指定的大小在View中显示，拉伸显示图片，不保持原比例，填满ImageView.-->
+
+
+<!--除了OnRefreshListener接口外，SwipRefreshLayout中还有一些其他重要的方法，具体如下：
+         1、setOnRefreshListener(SwipeRefreshLayout.OnRefreshListener listener):设置手势滑动监听器。
+         2、setProgressBackgroundColor(int colorRes):设置进度圈的背景色。
+         3、setColorSchemeResources(int… colorResIds):设置进度动画的颜色。
+         4、setRefreshing(Boolean refreshing):设置组件的刷洗状态。
+         5、setSize(int size):设置进度圈的大小，只有两个值：DEFAULT、LARGE-->
+    <android.support.v4.widget.SwipeRefreshLayout
+        android:id="@+id/swipe_refresh"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+    <!--ScrollView，通过官方文档的继承关系可以看出，它继承自FrameLayout，所以它是一种特殊类型的FrameLayout，
+    因为它可以使用用户滚动显示一个占据的空间大于物理显示的视图列表。值得注意的是，ScrollView只能包含一个子视图
+    或视图组，在实际项目中，通常包含的是一个垂直的LinearLayout。-->
+    <ScrollView
+        android:id="@+id/weather_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scrollbars="none"
+        android:overScrollMode="never">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+            <!--.fitsSystemWindow 默认是true，就是组件都在屏幕内，但是不包括statusBar。
+            设置成false后，整个屏幕都可以放置组件，没有statusBar和window之分-->
+
+            <include layout="@layout/title"/>
+            <include layout="@layout/now"/>
+            <include layout="@layout/forecast"/>
+            <include layout="@layout/aqi"/>
+            <include layout="@layout/suggestion"/>
+
+        </LinearLayout>
+    </ScrollView>
+    </android.support.v4.widget.SwipeRefreshLayout>
+</FrameLayout>
+

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize">
+
+    <TextView
+        android:id="@+id/title_city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:textColor="#fff"
+        android:textSize="16sp"/>
+<!--其中Margin是子控件与父控件之间的间隔大小。Border是子控件的边框，它是子控件和父控件的边界。
+Padding是指子控件中的内容(Content Area)与子控件Border的间隔大小。
+MarginRight,即子控件与父控件右边间隔的大小-->
+    <TextView
+        android:id="@+id/title_update_time"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:textColor="#fff"
+        android:textSize="16sp"/>
+
+</RelativeLayout>
